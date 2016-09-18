@@ -9,6 +9,13 @@ var canvas = document.getElementById('screen');
 var game = new Game(canvas, update, render);
 var player = new Player({x: 0, y: 240})
 
+// Added by Joey
+var bgroundWater = new Image();
+bgroundWater.src = "assets/water.jpg";
+
+var bgroundGrass = new Image();
+bgroundGrass.src = "assets/grass.jpg";
+
 /**
  * @function masterLoop
  * Advances the game in sync with the refresh rate of the screen
@@ -31,7 +38,8 @@ masterLoop(performance.now());
  */
 function update(elapsedTime) {
   player.update(elapsedTime);
-  // TODO: Update the game objects
+  //TODO: Update the game objects
+
 }
 
 /**
@@ -42,7 +50,9 @@ function update(elapsedTime) {
   * @param {CanvasRenderingContext2D} ctx the context to render to
   */
 function render(elapsedTime, ctx) {
-  ctx.fillStyle = "lightblue";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  //ctx.fillStyle = "lightblue";
+  //ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(bgroundWater,375,0);
+  ctx.drawImage(bgroundGrass,75,0);
   player.render(elapsedTime, ctx);
 }

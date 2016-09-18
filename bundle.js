@@ -43,8 +43,8 @@ function update(elapsedTime) {
   * @param {CanvasRenderingContext2D} ctx the context to render to
   */
 function render(elapsedTime, ctx) {
-  ctx.fillStyle = "lightblue";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  //ctx.fillStyle = "lightblue";
+  //ctx.fillRect(0, 0, canvas.width, canvas.height);
   player.render(elapsedTime, ctx);
 }
 
@@ -121,6 +121,9 @@ module.exports = exports = Player;
  * Creates a new player object
  * @param {Postition} position object specifying an x and y
  */
+
+
+
 function Player(position) {
   this.state = "idle";
   this.x = position.x;
@@ -168,7 +171,7 @@ Player.prototype.render = function(time, ctx) {
         this.x, this.y, this.width, this.height
       );
       break;
-    // TODO: Implement your player's redering according to state
+    // TODO: Implement your player's rendering according to state
   }
 }
 

@@ -65,3 +65,13 @@ Mini and Sports Car art was provided by  [bahi](http://opengameart.org/users/bah
 Sedan and Pickup art was provided by  [bahi](http://opengameart.org/users/bahi) of [Open Game Art](http://opengameart.org) under a CC-BY license.
 
 Game framework HTML5/CSS3/Javascript code was written by course instructor Nathan Bean, and released under a CC-BY license.
+
+water.png was provided by [unirail](http://opengameart.org/users/unirail) of [Open Game Art](http://opengameart.org) under a CC-BY 3.0 license. // UNUSED
+
+water.jpg was provided by Petr Kratochvil @ www.publicdomainpictures.net. Photo is public domain.
+
+hyptosis_tile-art-batch-1.png was provided by Hyptosis @ www.opengameart.org under a CC-BY 3.0 license. This image was be used to create a couple other images, all listed.
+
+rock.png was provided by Hyptosis @ www.opengameart.org under a CC-BY 3.0 license. (From hyptosis_tile-art-batch-1.png)
+
+grass.jpg was provided by Maliz Ong @ www.publicdomainpictures.net. Photo is public domain.
