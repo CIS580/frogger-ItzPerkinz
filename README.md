@@ -66,12 +66,15 @@ Sedan and Pickup art was provided by  [bahi](http://opengameart.org/users/bahi) 
 
 Game framework HTML5/CSS3/Javascript code was written by course instructor Nathan Bean, and released under a CC-BY license.
 
-water.png was provided by [unirail](http://opengameart.org/users/unirail) of [Open Game Art](http://opengameart.org) under a CC-BY 3.0 license. // UNUSED
+water.jpg was provided by jattenalle @ www.opengameart.org under a CC-BY 3.0 license.
 
-water.jpg was provided by Petr Kratochvil @ www.publicdomainpictures.net. Photo is public domain.
+grass.png was provided by surfacecurveg @ www.opengameart.org under a Public Domain CC0 license.
 
-hyptosis_tile-art-batch-1.png was provided by Hyptosis @ www.opengameart.org under a CC-BY 3.0 license. This image was be used to create a couple other images, all listed.
+sand.png was provided by n4 @ www.opengameart.org under a Pulic Domain CC0 license.
 
-rock.png was provided by Hyptosis @ www.opengameart.org under a CC-BY 3.0 license. (From hyptosis_tile-art-batch-1.png)
+jump.wav , drowning.wav , click.wav, and buzzer.wav are all from www.wavsource.com which provide free .wav files given a few conditions (http://www.wavsource.com/dis.htm) which are all met in this project.
+However, I don't currently have the audio files working.
 
-grass.jpg was provided by Maliz Ong @ www.publicdomainpictures.net. Photo is public domain.
+monster.png was provided by Nila122 @ www.opengameart.org under a CC-BY-SA 3.0 license.
+
+log.png was provided by multiple artists @ www.opengameart.org (submitted by adrix89) under a CC-BY-SA 3.0 license.
