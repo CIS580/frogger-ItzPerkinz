@@ -11,9 +11,13 @@ const Log = require('./log.js');
 var canvas = document.getElementById('screen');
 var game = new Game(canvas, update, render);
 var player = new Player({x: 0, y: 240});
-var monsters = [];
-var logs = [];
-
+var monsters1 = [];
+var monsters2 = [];
+var monsters3 = [];
+var logs1 = [];
+var logs2 = [];
+var logs3 = [];
+var oldPlayerLvl = 1;
 
 // ADDED BY JOEY
 var bgroundWater = new Image();
@@ -24,6 +28,12 @@ bgroundGrass.src = "assets/grass.png";
 
 var bgroundSand = new Image();
 bgroundSand.src = "assets/sand.png";
+
+var indexM;
+var indexL;
+var oldM;
+var oldL;
+var drowning = false;
 
 /**
  * @function masterLoop
@@ -46,11 +56,30 @@ masterLoop(performance.now());
  * the number of milliseconds passed since the last frame.
  */
 function update(elapsedTime) {
-  player.update(elapsedTime);
-  monsters.forEach(function(monster) { monster.update(elapsedTime); });
-  logs.forEach(function(log) { log.update(elapsedTime); });
-  //TODO: Update the game objects
+  // Spawn
+  drowning = false;
+  setTimeout(spawnM(), Math.ceil(Math.random()*30000+5000));
+  setTimeout(spawnL(), Math.ceil(Math.random()*30000+5000));
 
+
+  // Update
+  monsters1.forEach(function(monster) { monster.update(elapsedTime); });
+  monsters2.forEach(function(monster) { monster.update(elapsedTime); });
+  monsters3.forEach(function(monster) { monster.update(elapsedTime); });
+  logs1.forEach(function(log) { log.update(elapsedTime); });
+  logs2.forEach(function(log) { log.update(elapsedTime); });
+  logs3.forEach(function(log) { log.update(elapsedTime); });
+  player.update(elapsedTime);
+  if (player.lives == 0) { game.paused = true; }
+
+  // Collisions
+  if (player.col == 1) {for (var a=0; a<monsters1.length; a++) { checkCollisionM(monsters1[a], player); }}
+  else if (player.col == 2) {for (var b=0; b<monsters2.length; b++) { checkCollisionM(monsters2[b], player); }}
+  else if (player.col == 3) {for (var c=0; c<monsters3.length; c++) { checkCollisionM(monsters3[c], player); }}
+  else if (player.col == 5) {for (var d=0; d<logs1.length; d++) { onLog(logs1[d], player); }}
+  else if (player.col == 6) {for (var e=0; e<logs2.length; e++) { onLog(logs2[e], player); }}
+  else if (player.col == 7) {for (var f=0; f<logs3.length; f++) { onLog(logs3[f], player); }}
+  if (drowning == true) { player.state = "dead"; }
 
 }
 
@@ -64,6 +93,8 @@ function update(elapsedTime) {
 function render(elapsedTime, ctx) {
   //ctx.fillStyle = "lightblue";
   //ctx.fillRect(0, 0, canvas.width, canvas.height);
+  //ctx.clearRect(0,0,760,480);
+
   ctx.drawImage(bgroundSand,0,0);
   ctx.drawImage(bgroundWater,370,0);
   ctx.drawImage(bgroundGrass,72,0);
@@ -72,14 +103,14 @@ function render(elapsedTime, ctx) {
   ctx.fillRect(370,0,2,480);
   ctx.fillRect(595,0,2,480);
   ctx.fillRect(675,0,2,480);
-  ctx.fillStyle="Green";
+  if (!game.paused) ctx.fillStyle="Green";
 
   ctx.fillText("LEVEL = " + player.level, 4, 20);
   ctx.fillText("LIVES = " + player.lives, 4, 50);
-  ctx.font="15px Impact";
-  ctx.fillStyle="Green";
+  if (!game.paused) ctx.font="14px Impact";
+  if (!game.paused) ctx.fillStyle="Green";
 
-  // CODE ALMOST DIRECTLY FROM https://newspaint.wordpress.com/2014/05/22/writing-rotated-text-on-a-javascript-canvas/
+  // CODE ALMOST WORD FOR WORD FROM https://newspaint.wordpress.com/2014/05/22/writing-rotated-text-on-a-javascript-canvas/
   ctx.save();
   ctx.translate (0,0);
   ctx.rotate(Math.PI / 2);
@@ -89,10 +120,51 @@ function render(elapsedTime, ctx) {
   ctx.fillText ("---------- NEXT LEVEL ----------", 80, -710);
   ctx.restore();
   //
-
+  monsters1.forEach(function(monster) { monster.render(elapsedTime, ctx); });
+  monsters2.forEach(function(monster) { monster.render(elapsedTime, ctx); });
+  monsters3.forEach(function(monster) { monster.render(elapsedTime, ctx); });
+  logs1.forEach(function(log) { log.render(elapsedTime, ctx); });
+  logs2.forEach(function(log) { log.render(elapsedTime, ctx); });
+  logs3.forEach(function(log) { log.render(elapsedTime, ctx); });
   player.render(elapsedTime, ctx);
-  monsters.forEach(function(monster) { monster.render(elapsedTime, ctx); });
-  logs.forEach(function(log) { log.render(elapsedTime, ctx); });
+
+}
+
+function checkCollisionM(object, player)
+{
+  var hit = !((player.y+player.height < object.y) || (player.y > object.y+object.height))
+  if (hit)
+  { player.state = "dead";}
+}
+
+function onLog(object, player)
+{
+  var on = !((player.y+player.height < object.y) || (player.y > object.y+object.height))
+  if (on) {
+    drowning = false;
+    player.y = object.y+15;
+     }
+  else { drowning = true; }
+}
+
+function spawnM()
+{
+  indexM = Math.floor(Math.random()*3 + 1);
+  var newMon = new Monster(player.level, indexM);
+  if (indexM == 1 && oldM != 1) { monsters1.push(newMon); }
+  if (indexM == 2 && oldM != 2) { monsters2.push(newMon); }
+  if (indexM == 3 && oldM != 3) { monsters3.push(newMon); }
+  oldM = indexM;
+}
+
+function spawnL()
+{
+  indexL = Math.floor(Math.random()*3 + 5);
+  var newLog = new Log(player.level, indexL);
+  if (indexL == 5 && oldL != 5) { logs1.push(newLog); }
+  if (indexL == 6 && oldL != 6) { logs2.push(newLog); }
+  if (indexL == 7 && oldL != 7) { logs3.push(newLog); }
+  oldL = indexL;
 }
 
 },{"./game.js":2,"./log.js":3,"./monster.js":4,"./player.js":5}],2:[function(require,module,exports){
@@ -158,13 +230,18 @@ Game.prototype.loop = function(newTime) {
 
 module.exports = exports = Log;
 
-function Log(position) {
+function Log(level, col) {
   this.timer = 0;
-  this.x = position.x;
-  this.y = position.y;
+  this.x;
+  this.y = 0;
+  if (col == 5) { this.x = 382; }
+  else if (col == 6) { this.x = 457; }
+  else { this.x = 532; }
   this.width = 60;
-  this.height = 81;
-  this.cell;
+  this.height = 60;
+  this.level = level;
+  this.speed = Math.floor(Math.random()*this.level+1);
+
 }
 
 var logSprite = new Image();
@@ -172,13 +249,17 @@ logSprite.src = "assets/log.png";
 
 Log.prototype.update = function(elapsedTime) {
   this.timer += elapsedTime;
-
+  this.y = Math.ceil(this.y + this.speed);
 }
 
 Log.prototype.render = function(time, ctx) {
   ctx.drawImage(
     logSprite, this.x, this.y
   );
+  //ctx.fillRect(this.x, this.y+10, this.width-5, this.height);
+  //ctx.fillStyle="Brown";
+//  ctx.rect(this.x, this.y, this.width, this.height);
+//  ctx.stroke();
 
 }
 
@@ -187,13 +268,17 @@ Log.prototype.render = function(time, ctx) {
 
 module.exports = exports = Monster;
 
-function Monster(position) {
+function Monster(level, col) {
   this.timer = 0;
-  this.x = position.x;
-  this.y = position.y;
+  this.x;
+  this.y = 0;
+  if (col == 1) { this.x = 87; }
+  else if (col == 2) { this.x = 162; }
+  else { this.x = 237; }
   this.width = 49;
-  this.height = 75;
-  this.cell;
+  this.height = 65;
+  this.level = level;
+  this.speed = Math.floor(Math.random()*this.level+1);
 }
 
 var monsterSprite = new Image();
@@ -201,13 +286,16 @@ monsterSprite.src = "assets/monster.png";
 
 Monster.prototype.update = function(elapsedTime) {
   this.timer += elapsedTime;
+  this.y = Math.ceil(this.y + this.speed);
+
 
 }
 
 Monster.prototype.render = function(time, ctx) {
   ctx.drawImage(
-    monsterSprite, this.x, this.y
+    monsterSprite, this.x, this.y-3
   );
+  //ctx.fillRect(this.x, this.y, this.width, this.height);
 
 }
 
@@ -230,9 +318,17 @@ var input =
 }
 
 var buzz = new Audio("assets/buzzer.wav");
+buzz.volume = 0.2;
 var drown = new Audio("assets/drowning.wav");
+drown.volume = 0.2;
 var jump = new Audio("assets/jump.wav");
+jump.volume = 0.2;
 var click = new Audio("assets/click.wav");
+click.volume = 0.2;
+
+var splat = new Image();
+splat.src = "assets/splat.png";
+
 var grass = [1,2,3,10,11,12,19,20,21,28,29,30,37,38,39,46,47,48];
 var water = [5,6,7,14,15,16,23,24,25,32,33,34,41,42,43,50,51,52];
 
@@ -245,8 +341,8 @@ function Player(position) {
   this.state = "idle";
   this.x = position.x;
   this.y = position.y;
-  this.width  = 64;
-  this.height = 64;
+  this.width  = 55;
+  this.height = 55;
   this.spritesheet  = new Image();
   this.spritesheet.src = encodeURI('assets/PlayerSprite2.png');
   this.timer = 0;
@@ -255,7 +351,7 @@ function Player(position) {
   this.lives = 3;
   this.level = 1;
   var self = this;
-  this.cell = 27
+  this.col = 0;
 
   // Identifies the directional key being pressed
   window.onkeydown = function(event) {
@@ -315,32 +411,36 @@ Player.prototype.update = function(time) {
       }
       break;
     case "moving":
-      //jump.play(); // DISABLED BECAUSE TOO ANNOYING WHILE TESTING. May make it back into the game?
+      // jump.play(); // DISABLED BECAUSE TOO ANNOYING WHILE TESTING. May make it back into the game?
       // Currently handles movement. Restricts the frog from jumping off the screen. Keeps track of current cell.
       if (input.up) {
         if (this.y - 80 >= 0) {
-          this.y = this.y - 80; this.cell-=9; }
+          this.y = this.y - 80; }
           input.up = false; }
       else if (input.down) {
         if (this.y+80 < 480) {
-          this.y = this.y + 80; this.cell+=9; }
+          this.y = this.y + 80; }
           input.down = false; }
       else if (input.right) {
-        this.x = this.x + 75; this.cell+=1;
+        this.x = this.x + 75; this.col+=1;
         input.right = false;
-        if (this.x+75 >= 700) { this.level++; this.x = 0; this.y = 240; this.cell=27; }  }
+        if (this.col == 9) {
+          click.play(); this.level++; this.x = 0; this.y = 240; this.col = 0; }  }
       else if (input.left) {
         if (this.x-75 >= 0) {
-          this.x = this.x - 75; this.cell-=1; }
+          this.x = this.x - 75; this.col-=1; }
           input.left = false; }
       this.timer += time;
       this.frame += 0;
-      console.log("moving " + this.x + " " + this.y + " " + this.cell);
+      console.log("moving " + this.x + " " + this.y + " " + this.col);
       self.state = "idle";
     break;
     case "dead":
-    if (grass.includes(this.cell)) { /*buzzer.play();*/}
-    else if (water.includes(this.cell)) { /*drown.play();*/ }
+      if (grass.includes(this.col)) { buzz.play();}
+      else if (water.includes(this.col)) { drown.play(); }
+      this.lives--;
+      this.state = "idle";
+      this.x = 0; this.y = 240; this.col = 0;
     break;
 
   }
@@ -358,11 +458,11 @@ Player.prototype.render = function(time, ctx) {
         // image
         this.spritesheet,
         // source rectangle
-        this.frame * 64, 64, this.width, this.height,
+        this.frame * 64, 64, 64, 64,
         // destination rectangle
-        this.x, this.y, this.width, this.height
+        this.x, this.y-10, this.width, this.height
       );
-
+      //ctx.fillRect(this.x, this.y, this.width, this.height);
       break;
     // TODO: Implement your player's rendering according to state
     case "moving":
@@ -372,11 +472,15 @@ Player.prototype.render = function(time, ctx) {
         // source rectangle
         this.frame * 64, 0, this.width, this.height,
         // destination rectangle
-        this.x, this.y, this.width, this.height
+        this.x, this.y-10, this.width, this.height
       );
       this.state = "idle";
     break;
     case "dead":
+    ctx.drawImage(
+      splat,
+      // destination rectangle
+      this.x, this.y-10, this.width, this.height);
     break;
   }
 }

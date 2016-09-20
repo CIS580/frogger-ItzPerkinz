@@ -78,3 +78,5 @@ However, I don't currently have the audio files working.
 monster.png was provided by Nila122 @ www.opengameart.org under a CC-BY-SA 3.0 license.
 
 log.png was provided by multiple artists @ www.opengameart.org (submitted by adrix89) under a CC-BY-SA 3.0 license.
+
+splat.png was provided by Pompei2 @ www.opengameart.org under a CC-BY 3.0 license. 
