@@ -21,7 +21,7 @@ var drown = new Audio("assets/drowning.wav");
 drown.volume = 0.2;
 var jump = new Audio("assets/jump.wav");
 jump.volume = 0.2;
-var click = new Audio("assets/click.wav");
+var click = new Audio("assets/fanfare.wav");
 click.volume = 0.2;
 
 var splat = new Image();
@@ -45,11 +45,16 @@ function Player(position) {
   this.spritesheet.src = encodeURI('assets/PlayerSprite2.png');
   this.timer = 0;
   this.frame = 0;
+
   // ADDED BY JOEY
   this.lives = 3;
   this.level = 1;
   var self = this;
   this.col = 0;
+  this.onLog = false;
+  this.on;
+  this.newLevel = false;
+  this.locked = true;
 
   // Identifies the directional key being pressed
   window.onkeydown = function(event) {
@@ -60,28 +65,24 @@ function Player(position) {
       case 87:
         self.state = "moving";
         input.up = true;
-        console.log("UP");
       break;
       // left
       case 37:
       case 65:
         self.state = "moving";
         input.left = true;
-        console.log("LEFT");
       break;
       // right
       case 39:
       case 68:
         self.state = "moving";
         input.right = true;
-        console.log("RIGHT");
       break;
       // down
       case 40:
       case 83:
         self.state = "moving";
         input.down = true;
-        console.log("DOWN");
       break;
     }
   }
@@ -109,8 +110,9 @@ Player.prototype.update = function(time) {
       }
       break;
     case "moving":
-      // jump.play(); // DISABLED BECAUSE TOO ANNOYING WHILE TESTING. May make it back into the game?
-      // Currently handles movement. Restricts the frog from jumping off the screen. Keeps track of current cell.
+      //jump.play(); // DISABLED BECAUSE TOO ANNOYING WHILE TESTING. May make it back into the game?
+      if (this.locked != true)
+      {
       if (input.up) {
         if (this.y - 80 >= 0) {
           this.y = this.y - 80; }
@@ -123,17 +125,29 @@ Player.prototype.update = function(time) {
         this.x = this.x + 75; this.col+=1;
         input.right = false;
         if (this.col == 9) {
-          click.play(); this.level++; this.x = 0; this.y = 240; this.col = 0; }  }
+          click.play(); this.level++; this.x = 0; this.y = 240; this.col = 0;
+          this.newLevel = true; this.locked = true; }  }
       else if (input.left) {
         if (this.x-75 >= 0) {
           this.x = this.x - 75; this.col-=1; }
           input.left = false; }
       this.timer += time;
-      this.frame += 0;
-      console.log("moving " + this.x + " " + this.y + " " + this.col);
+      if(this.timer > MS_PER_FRAME) {
+        this.timer = 0;
+        this.frame += 1;
+        if(this.frame > 3) this.frame = 0;
+      }
+      this.onLog = false;
       self.state = "idle";
+    }
+    input.up = false;
+    input.down = false;
+    input.right = false;
+    input.left = false;
     break;
     case "dead":
+      this.onLog = false;
+      this.on;
       if (grass.includes(this.col)) { buzz.play();}
       else if (water.includes(this.col)) { drown.play(); }
       this.lives--;
@@ -160,7 +174,6 @@ Player.prototype.render = function(time, ctx) {
         // destination rectangle
         this.x, this.y-10, this.width, this.height
       );
-      //ctx.fillRect(this.x, this.y, this.width, this.height);
       break;
     // TODO: Implement your player's rendering according to state
     case "moving":

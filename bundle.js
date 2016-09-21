@@ -11,6 +11,8 @@ const Log = require('./log.js');
 var canvas = document.getElementById('screen');
 var game = new Game(canvas, update, render);
 var player = new Player({x: 0, y: 240});
+
+// ADDED BY JOEY
 var monsters1 = [];
 var monsters2 = [];
 var monsters3 = [];
@@ -19,7 +21,9 @@ var logs2 = [];
 var logs3 = [];
 var oldPlayerLvl = 1;
 
-// ADDED BY JOEY
+var unlock = new Audio("assets/unlock.wav");
+unlock.volume = 0.2
+
 var bgroundWater = new Image();
 bgroundWater.src = "assets/water.jpg";
 
@@ -34,6 +38,9 @@ var indexL;
 var oldM;
 var oldL;
 var drowning = false;
+
+var timer = 0;
+var curIndex = 0;
 
 /**
  * @function masterLoop
@@ -57,29 +64,70 @@ masterLoop(performance.now());
  */
 function update(elapsedTime) {
   // Spawn
-  drowning = false;
-  setTimeout(spawnM(), Math.ceil(Math.random()*30000+5000));
-  setTimeout(spawnL(), Math.ceil(Math.random()*30000+5000));
+  //console.log(monsters1.length);
 
+
+  //console.log(player.newLevel);
+  drowning = false;
+  timer = timer + player.level/2;
+  if (timer >= Math.random()*(3000/player.level)+75)
+  {
+    console.log ("spawning -- tick is  " + timer );
+    spawnM(); if (timer > 125) { spawnM(); }
+    spawnL(); spawnL();
+    timer = 0;
+  }
 
   // Update
-  monsters1.forEach(function(monster) { monster.update(elapsedTime); });
-  monsters2.forEach(function(monster) { monster.update(elapsedTime); });
-  monsters3.forEach(function(monster) { monster.update(elapsedTime); });
-  logs1.forEach(function(log) { log.update(elapsedTime); });
-  logs2.forEach(function(log) { log.update(elapsedTime); });
-  logs3.forEach(function(log) { log.update(elapsedTime); });
+  monsters1.forEach(function(monster) {
+    monster.update(elapsedTime);
+    if (player.locked && monster.y > 300) { unlock.play(); player.locked = false; }
+  });
+  monsters2.forEach(function(monster) {
+    if (player.locked && monster.y > 300) { unlock.play(); player.locked = false; }
+    monster.update(elapsedTime);
+  });
+  monsters3.forEach(function(monster) {
+    if (player.locked && monster.y > 300) { unlock.play(); player.locked = false; }
+    monster.update(elapsedTime);
+  });
+  logs1.forEach(function(log) {
+    if (player.locked && log.y > 300) { unlock.play(); player.locked = false; }
+    log.update(elapsedTime);
+  });
+  logs2.forEach(function(log) {
+    if (player.locked && log.y > 300) { unlock.play(); player.locked = false; }
+    log.update(elapsedTime);
+  });
+  logs3.forEach(function(log) {
+    if (player.locked && log.y > 300) { unlock.play(); player.locked = false; }
+    log.update(elapsedTime);
+  });
   player.update(elapsedTime);
+  if (player.onLog) {latchOn(player, player.on)}
   if (player.lives == 0) { game.paused = true; }
 
   // Collisions
   if (player.col == 1) {for (var a=0; a<monsters1.length; a++) { checkCollisionM(monsters1[a], player); }}
   else if (player.col == 2) {for (var b=0; b<monsters2.length; b++) { checkCollisionM(monsters2[b], player); }}
   else if (player.col == 3) {for (var c=0; c<monsters3.length; c++) { checkCollisionM(monsters3[c], player); }}
-  else if (player.col == 5) {for (var d=0; d<logs1.length; d++) { onLog(logs1[d], player); }}
-  else if (player.col == 6) {for (var e=0; e<logs2.length; e++) { onLog(logs2[e], player); }}
-  else if (player.col == 7) {for (var f=0; f<logs3.length; f++) { onLog(logs3[f], player); }}
+  else if (player.col == 5) {for (var d=0; d<logs1.length; d++) { if (player.onLog == false) onLog(logs1[d], player); }}
+  else if (player.col == 6) {for (var e=0; e<logs2.length; e++) { if (player.onLog == false) onLog(logs2[e], player); }}
+  else if (player.col == 7) {for (var f=0; f<logs3.length; f++) { if (player.onLog == false) onLog(logs3[f], player); }}
   if (drowning == true) { player.state = "dead"; }
+
+  if (player.newLevel)
+  {
+    monsters1 = [];
+    monsters2 = [];
+    monsters3 = [];
+    logs1 = [];
+    logs2 = [];
+    logs3 = [];
+    player.locked = true;
+    player.newLevel = false;
+  }
+
 
 }
 
@@ -120,6 +168,7 @@ function render(elapsedTime, ctx) {
   ctx.fillText ("---------- NEXT LEVEL ----------", 80, -710);
   ctx.restore();
   //
+
   monsters1.forEach(function(monster) { monster.render(elapsedTime, ctx); });
   monsters2.forEach(function(monster) { monster.render(elapsedTime, ctx); });
   monsters3.forEach(function(monster) { monster.render(elapsedTime, ctx); });
@@ -128,22 +177,34 @@ function render(elapsedTime, ctx) {
   logs3.forEach(function(log) { log.render(elapsedTime, ctx); });
   player.render(elapsedTime, ctx);
 
+  if (player.locked)
+  {
+    ctx.font="30px Impact";
+    ctx.fillStyle = "Black";
+    ctx.fillText("Level " + player.level + " starting shortly! Good luck!", 160,250);
+    ctx.font="14px Impact";
+    ctx.fillStyle="Green";
+
+  }
+
 }
 
 function checkCollisionM(object, player)
 {
-  var hit = !((player.y+player.height < object.y) || (player.y > object.y+object.height))
+  var hit = !((player.y+player.height < object.y+5) || (player.y > object.y+object.height-5))
   if (hit)
   { player.state = "dead";}
 }
 
 function onLog(object, player)
 {
-  var on = !((player.y+player.height < object.y) || (player.y > object.y+object.height))
+  var on = !((player.y+player.height < object.y-5) || (player.y > object.y+object.height))
   if (on) {
+    player.onLog = true;
     drowning = false;
-    player.y = object.y+15;
-     }
+    player.on = object;
+    latchOn(player, object);
+    }
   else { drowning = true; }
 }
 
@@ -151,9 +212,9 @@ function spawnM()
 {
   indexM = Math.floor(Math.random()*3 + 1);
   var newMon = new Monster(player.level, indexM);
-  if (indexM == 1 && oldM != 1) { monsters1.push(newMon); }
-  if (indexM == 2 && oldM != 2) { monsters2.push(newMon); }
-  if (indexM == 3 && oldM != 3) { monsters3.push(newMon); }
+  if (indexM == 1 /*&& oldM != 1*/) { monsters1.push(newMon); }
+  if (indexM == 2 /*&& oldM != 2*/) { monsters2.push(newMon); }
+  if (indexM == 3 /*&& oldM != 3*/) { monsters3.push(newMon); }
   oldM = indexM;
 }
 
@@ -165,6 +226,17 @@ function spawnL()
   if (indexL == 6 && oldL != 6) { logs2.push(newLog); }
   if (indexL == 7 && oldL != 7) { logs3.push(newLog); }
   oldL = indexL;
+}
+
+function latchOn(player, log)
+{
+  player.onLog = true;
+  player.drowning = false;
+  player.y = log.y;
+  if (log.y > 440) {
+    player.state = "dead";
+
+  }
 }
 
 },{"./game.js":2,"./log.js":3,"./monster.js":4,"./player.js":5}],2:[function(require,module,exports){
@@ -240,7 +312,7 @@ function Log(level, col) {
   this.width = 60;
   this.height = 60;
   this.level = level;
-  this.speed = Math.floor(Math.random()*this.level+1);
+  this.col = col;
 
 }
 
@@ -249,7 +321,8 @@ logSprite.src = "assets/log.png";
 
 Log.prototype.update = function(elapsedTime) {
   this.timer += elapsedTime;
-  this.y = Math.ceil(this.y + this.speed);
+  if (this.col == 6) { this.y = this.y + this.level/3; }
+  else { this.y = this.y + this.level/2; }
 }
 
 Log.prototype.render = function(time, ctx) {
@@ -278,7 +351,7 @@ function Monster(level, col) {
   this.width = 49;
   this.height = 65;
   this.level = level;
-  this.speed = Math.floor(Math.random()*this.level+1);
+  this.col = col;
 }
 
 var monsterSprite = new Image();
@@ -286,8 +359,8 @@ monsterSprite.src = "assets/monster.png";
 
 Monster.prototype.update = function(elapsedTime) {
   this.timer += elapsedTime;
-  this.y = Math.ceil(this.y + this.speed);
-
+  if (this.col == 2) { this.y = this.y + this.level/3; }
+  else { this.y = this.y + this.level/2; }
 
 }
 
@@ -323,7 +396,7 @@ var drown = new Audio("assets/drowning.wav");
 drown.volume = 0.2;
 var jump = new Audio("assets/jump.wav");
 jump.volume = 0.2;
-var click = new Audio("assets/click.wav");
+var click = new Audio("assets/fanfare.wav");
 click.volume = 0.2;
 
 var splat = new Image();
@@ -347,11 +420,16 @@ function Player(position) {
   this.spritesheet.src = encodeURI('assets/PlayerSprite2.png');
   this.timer = 0;
   this.frame = 0;
+
   // ADDED BY JOEY
   this.lives = 3;
   this.level = 1;
   var self = this;
   this.col = 0;
+  this.onLog = false;
+  this.on;
+  this.newLevel = false;
+  this.locked = true;
 
   // Identifies the directional key being pressed
   window.onkeydown = function(event) {
@@ -362,28 +440,24 @@ function Player(position) {
       case 87:
         self.state = "moving";
         input.up = true;
-        console.log("UP");
       break;
       // left
       case 37:
       case 65:
         self.state = "moving";
         input.left = true;
-        console.log("LEFT");
       break;
       // right
       case 39:
       case 68:
         self.state = "moving";
         input.right = true;
-        console.log("RIGHT");
       break;
       // down
       case 40:
       case 83:
         self.state = "moving";
         input.down = true;
-        console.log("DOWN");
       break;
     }
   }
@@ -411,8 +485,9 @@ Player.prototype.update = function(time) {
       }
       break;
     case "moving":
-      // jump.play(); // DISABLED BECAUSE TOO ANNOYING WHILE TESTING. May make it back into the game?
-      // Currently handles movement. Restricts the frog from jumping off the screen. Keeps track of current cell.
+      //jump.play(); // DISABLED BECAUSE TOO ANNOYING WHILE TESTING. May make it back into the game?
+      if (this.locked != true)
+      {
       if (input.up) {
         if (this.y - 80 >= 0) {
           this.y = this.y - 80; }
@@ -425,17 +500,29 @@ Player.prototype.update = function(time) {
         this.x = this.x + 75; this.col+=1;
         input.right = false;
         if (this.col == 9) {
-          click.play(); this.level++; this.x = 0; this.y = 240; this.col = 0; }  }
+          click.play(); this.level++; this.x = 0; this.y = 240; this.col = 0;
+          this.newLevel = true; this.locked = true; }  }
       else if (input.left) {
         if (this.x-75 >= 0) {
           this.x = this.x - 75; this.col-=1; }
           input.left = false; }
       this.timer += time;
-      this.frame += 0;
-      console.log("moving " + this.x + " " + this.y + " " + this.col);
+      if(this.timer > MS_PER_FRAME) {
+        this.timer = 0;
+        this.frame += 1;
+        if(this.frame > 3) this.frame = 0;
+      }
+      this.onLog = false;
       self.state = "idle";
+    }
+    input.up = false;
+    input.down = false;
+    input.right = false;
+    input.left = false;
     break;
     case "dead":
+      this.onLog = false;
+      this.on;
       if (grass.includes(this.col)) { buzz.play();}
       else if (water.includes(this.col)) { drown.play(); }
       this.lives--;
@@ -462,7 +549,6 @@ Player.prototype.render = function(time, ctx) {
         // destination rectangle
         this.x, this.y-10, this.width, this.height
       );
-      //ctx.fillRect(this.x, this.y, this.width, this.height);
       break;
     // TODO: Implement your player's rendering according to state
     case "moving":

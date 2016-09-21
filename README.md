@@ -72,11 +72,11 @@ grass.png was provided by surfacecurveg @ www.opengameart.org under a Public Dom
 
 sand.png was provided by n4 @ www.opengameart.org under a Pulic Domain CC0 license.
 
-jump.wav , drowning.wav , click.wav, and buzzer.wav are all from www.wavsource.com which provide free .wav files given a few conditions (http://www.wavsource.com/dis.htm) which are all met in this project.
+jump.wav , drowning.wav , unlock.wav, and fanfare.wav, buzzer.wav are all from www.wavsource.com which provide free .wav files given a few conditions (http://www.wavsource.com/dis.htm) which are all met in this project.
 However, I don't currently have the audio files working.
 
 monster.png was provided by Nila122 @ www.opengameart.org under a CC-BY-SA 3.0 license.
 
 log.png was provided by multiple artists @ www.opengameart.org (submitted by adrix89) under a CC-BY-SA 3.0 license.
 
-splat.png was provided by Pompei2 @ www.opengameart.org under a CC-BY 3.0 license. 
+splat.png was provided by Pompei2 @ www.opengameart.org under a CC-BY 3.0 license.
